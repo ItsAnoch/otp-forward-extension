@@ -6,10 +6,38 @@ const otpSchema = z.object({
     otp: z.string().regex(/^\d{4,8}$/, "OTP must be a 4 to 8 digit number"),
 });
 
-
 const app = new Hono();
 
-const otpQueue: string[] = [];
+class OTPEvents {
+    private listeners: ((otp: string) => void)[] = [];
+
+    publish(otp: string) {
+        this.listeners.forEach((listener) => listener(otp));
+    }
+
+    waitForSubscriber() {
+        const currentTime = Date.now();
+        const timeout = 10_000; // 10 seconds
+        return new Promise<void>((resolve, reject) => {
+            const check = () => {
+                if (this.listeners.length > 0) {
+                    resolve();
+                } else if (Date.now() - currentTime > timeout) {
+                    reject(new Error("Timeout waiting for subscriber"));
+                } else {
+                    setTimeout(check, 100);
+                }
+            };
+            check();
+        });
+    }
+
+    subscribe(listener: (otp: string) => void) {
+        this.listeners.push(listener);
+    }
+} 
+
+const bus = new OTPEvents();
 
 app.post("/otp", async (c) => {
     const body = await c.req.json();
@@ -19,32 +47,23 @@ app.post("/otp", async (c) => {
         return c.text("Invalid OTP", { status: 400 });
     }
 
-    otpQueue.push(data.otp);
+    bus.waitForSubscriber(); // Needed for serverless functions
+    bus.publish(data.otp);
 
     return c.text("OTP received", { status: 200 });
 });
 
 app.get("/otp", async (c) => {
     return streamSSE(c, async (stream) => {
-        // while (true) {
-        // const message = `It is ${new Date().toISOString()}`
-        // await stream.writeSSE({
-        //     data: message,
-        //     event: 'time-update',
-        // })
-        // await stream.sleep(1000)
-        // }
+        bus.subscribe(async (otp) => {
+            await stream.writeSSE({ data: otp });
+            await stream.close();
+        });
 
-        
-
-        for (let i = 0; i < 10; i++) {
-            const otp = otpQueue.shift();
-            if (otp) {
-                await stream.writeSSE({ data: otp });
-                break;
-            };
-            await stream.sleep(1000);
-        }
+        // Timeout
+        await stream.writeln("");
+        await stream.sleep(60_000);
+        await stream.close();
     })
 });
 

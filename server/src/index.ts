@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { locationHash } from "./middleware/locationHash";
+import { locationHash } from "./middleware/location-hash";
 import { phoneAuth, extensionAuth } from "./middleware/token-auth";
 import { bus } from "./services/otp-bus";
 import { otpSchema } from "./schemas/otp";
@@ -11,7 +11,11 @@ app.use(cors());
 app.use(locationHash);
 app.use(logger());
 
-app.post("/otp", phoneAuth, async (c) => {
+const isProd = process.env.NODE_ENV === "production";
+const PublisherTimeout = isProd ? 25_000 : 1_000;
+const SubscriberTimeout = isProd ? 60_000 : 1_000;
+
+app.post("/otp", locationHash, phoneAuth, async (c) => {
 	const body = await c.req.json().catch(() => null);
 	const parsed = otpSchema.safeParse(body);
 
@@ -20,27 +24,19 @@ app.post("/otp", phoneAuth, async (c) => {
 	}
 
     const { otp } = parsed.data;
-    const locationHash = c.req.header("x-location-hash") || "unknown";
+	const locationHash = c.req.header("x-location-hash") || "unknown";
 
-	// Wait for a subscriber (returns instantly if already subscribed)
-	await bus.waitForSubscriber(locationHash, 25_000);
+	await bus.waitForSubscriber(locationHash, PublisherTimeout);
 
 	bus.publish(locationHash, otp);
 	return c.text("OTP received", 200);
 });
 
-app.get("/otp", extensionAuth, async (c) => {
-	if (process.env.NODE_ENV === "development") {
-		const randomCode = `${Math.floor(Math.random() * 100000)}`;
-		await Bun.sleep(Math.random() * 5000);
-		return c.text(randomCode, 200);
-	}
-
-	const url = new URL(c.req.url);
-	const locationHash = url.searchParams.get("locationHash") || "unknown";
+app.get("/otp", locationHash, extensionAuth, async (c) => {
+	const locationHash = c.req.header("x-location-hash") || "unknown";
 
 	try {
-		const otp = await bus.subscribeOnce(locationHash, 60_000);
+		const otp = await bus.subscribeOnce(locationHash, SubscriberTimeout);
 		return c.text(otp, 200);
 	} catch {
 		return c.body(null, 204);

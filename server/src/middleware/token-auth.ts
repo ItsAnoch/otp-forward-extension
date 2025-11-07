@@ -1,4 +1,5 @@
 import { createMiddleware } from "hono/factory";
+import { Env } from "@/env";
 
 export const tokenAuth = (validToken: string) => createMiddleware(async (c, next) => {
     const authHeader = c.req.header("authorization");
@@ -8,11 +9,11 @@ export const tokenAuth = (validToken: string) => createMiddleware(async (c, next
     const token = authHeader.replace("Bearer ", "").trim();
 
     if (token !== validToken) {
-        return c.json({ error: "Invalid Authorization token" }, 403);
+        return c.json({ error: "Invalid Authorization token" }, 401);
     }
 
     return next();
 });
 
-export const phoneAuth = tokenAuth(process.env.PHONE_AUTH_TOKEN!);
-export const extensionAuth = tokenAuth(process.env.EXTENSION_TOKEN!);
+export const phoneAuth = tokenAuth(Env.PHONE_AUTH_TOKEN);
+export const extensionAuth = tokenAuth(Env.PUBLIC_EXTENSION_TOKEN);

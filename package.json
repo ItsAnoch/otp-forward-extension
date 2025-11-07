@@ -1,18 +1,19 @@
 {
   "name": "phone-otp",
   "module": "src/index.ts",
-  "type": "module",
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
   "private": true,
-  "workspaces": [
-    "server/*",
-    "client/*"
-  ],
   "scripts": {
     "dev:server": "bun run server --workspace=server",
     "dev:client": "bun run client --workspace=client",
-    "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\""
+    "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
+    "test": "bun test --timeout=120000 --coverage"
   },
-  "dependencies": {
-    "zod": "^4.1.12"
-  }
+  "type": "module",
+  "workspaces": [
+    "server/*",
+    "client/*"
+  ]
 }

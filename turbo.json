@@ -4,25 +4,31 @@
     "dev": {
       "dependsOn": ["extension#dev", "server#dev"],
       "persistent": true,
-      "cache": false
+      "cache": false,
+      "env": ["NODE_ENV", "PUBLIC_EXTENSION_TOKEN", "PHONE_AUTH_TOKEN"]
     },
     "build": {
       "dependsOn": ["extension#build", "server#build"],
-      "outputs": ["extension/dist/**", "server/dist/**"]
+      "outputs": ["extension/dist/**", "server/dist/**"],
+      "env": ["NODE_ENV", "PUBLIC_EXTENSION_TOKEN", "PHONE_AUTH_TOKEN"]
     },
     "extension#dev": {
       "persistent": true,
-      "cache": false
+      "cache": false,
+      "env": ["NODE_ENV", "PUBLIC_EXTENSION_TOKEN"]
     },
     "server#dev": {
       "persistent": true,
-      "cache": false
+      "cache": false,
+      "env": ["NODE_ENV", "PHONE_AUTH_TOKEN"]
     },
     "extension#build": {
-      "outputs": ["extension/dist/**"]
+      "outputs": ["extension/dist/**"],
+      "env": ["NODE_ENV", "PUBLIC_EXTENSION_TOKEN"]
     },
     "server#build": {
-      "outputs": ["server/dist/**"]
+      "outputs": ["server/dist/**"],
+      "env": ["NODE_ENV", "PHONE_AUTH_TOKEN"]
     }
   }
 }

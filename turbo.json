@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "dev": {
+      "dependsOn": ["extension#dev", "server#dev"],
+      "persistent": true,
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["extension#build", "server#build"],
+      "outputs": ["extension/dist/**", "server/dist/**"]
+    },
+    "extension#dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "server#dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "extension#build": {
+      "outputs": ["extension/dist/**"]
+    },
+    "server#build": {
+      "outputs": ["server/dist/**"]
+    }
+  }
+}

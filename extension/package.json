@@ -13,5 +13,8 @@
   "scripts": {
     "dev": "bun run --env-file=../.env build.ts --src=src --outdir=dist --watch",
     "build": "rm -rf ./dist && bun run --env-file=../.env build.ts --src=src --outdir=dist"
+  },
+  "dependencies": {
+    "@types/node": "^24.10.0"
   }
 }

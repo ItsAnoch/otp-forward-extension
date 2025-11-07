@@ -10,7 +10,8 @@
     "typescript": "^5"
   },
   "scripts": {
-    "dev": "NODE_ENV=development bun --hot --env-file=../.env run src/index.ts"
+    "dev": "NODE_ENV=development bun --hot --env-file=../.env run src/index.ts",
+    "build": "bun build src/index.ts --outdir=dist --env-file=../.env"
   },
   "dependencies": {
     "hono": "^4.10.4",

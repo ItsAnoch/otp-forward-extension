@@ -1,6 +1,6 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "bunVersion": "1.x",
-    "buildCommand": "turbo run build --filter=server",
+    "buildCommand": "turbo run build",
     "outputDirectory": "./server/dist"
 }

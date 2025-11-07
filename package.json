@@ -6,14 +6,14 @@
   },
   "private": true,
   "scripts": {
-    "dev:server": "bun run server --workspace=server",
-    "dev:client": "bun run client --workspace=client",
-    "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
+    "dev:server": "bun run dev --workspace=server",
+    "dev:extension": "bun run dev --workspace=extension",
+    "build:extension": "bun run build --workspace=extension",
     "test": "bun test --timeout=120000 --coverage"
   },
   "type": "module",
   "workspaces": [
     "server/*",
-    "client/*"
+    "extension/*"
   ]
 }

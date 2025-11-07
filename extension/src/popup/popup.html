@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="./popup.css">
+	<title>OTP Viewer</title>
+</head>
+<body>
+	<div class="popup-panel">
+		<header class="popup-header">
+			<h2 class="popup-title">One-Time Password</h2>
+			<span class="status-dot"></span>
+		</header>
+
+		<main>
+			<div id="otp-text">- - - - - -</div>
+			<div class="ttl-row">
+				<span class="ttl-label">Expires in</span>
+				<span id="otp-ttl">--</span>
+			</div>
+		</main>
+
+		<footer class="actions">
+			<button id="refresh" class="button">Refresh</button>
+			<button id="copy" class="button primary">Copy</button>
+		</footer>
+	</div>
+
+	<script type="module" src="./popup.js"></script>
+</body>
+</html>

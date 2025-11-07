@@ -5,20 +5,14 @@
   "private": true,
   "workspaces": [
     "server/*",
-    "client/*",
-    "shared/*"
+    "client/*"
   ],
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "scripts": {
-    "dev": "bun --hot run src/index.ts"
+    "dev:server": "bun run server --workspace=server",
+    "dev:client": "bun run client --workspace=client",
+    "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\""
   },
   "dependencies": {
-    "hono": "^4.10.4",
     "zod": "^4.1.12"
   }
 }

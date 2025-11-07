@@ -1,70 +1,50 @@
-import { z } from "zod";
 import { Hono } from "hono";
-import { streamSSE } from "hono/streaming";
-
-const otpSchema = z.object({
-    otp: z.string().regex(/^\d{4,8}$/, "OTP must be a 4 to 8 digit number"),
-});
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { locationHash } from "./middleware/locationHash";
+import { phoneAuth, extensionAuth } from "./middleware/token-auth";
+import { bus } from "./services/otp-bus";
+import { otpSchema } from "./schemas/otp";
 
 const app = new Hono();
+app.use(cors());
+app.use(locationHash);
+app.use(logger());
 
-class OTPEvents {
-    private listeners: ((otp: string) => void)[] = [];
+app.post("/otp", phoneAuth, async (c) => {
+	const body = await c.req.json().catch(() => null);
+	const parsed = otpSchema.safeParse(body);
 
-    publish(otp: string) {
-        this.listeners.forEach((listener) => listener(otp));
-    }
+	if (!parsed.success) {
+		return c.text("Invalid OTP payload", 400);
+	}
 
-    waitForSubscriber() {
-        const currentTime = Date.now();
-        const timeout = 10_000; // 10 seconds
-        return new Promise<void>((resolve, reject) => {
-            const check = () => {
-                if (this.listeners.length > 0) {
-                    resolve();
-                } else if (Date.now() - currentTime > timeout) {
-                    reject(new Error("Timeout waiting for subscriber"));
-                } else {
-                    setTimeout(check, 100);
-                }
-            };
-            check();
-        });
-    }
+    const { otp } = parsed.data;
+    const locationHash = c.req.header("x-location-hash") || "unknown";
 
-    subscribe(listener: (otp: string) => void) {
-        this.listeners.push(listener);
-    }
-} 
+	// Wait for a subscriber (returns instantly if already subscribed)
+	await bus.waitForSubscriber(locationHash, 25_000);
 
-const bus = new OTPEvents();
-
-app.post("/otp", async (c) => {
-    const body = await c.req.json();
-    const { data, success } = otpSchema.safeParse(body);
-
-    if (!success) {
-        return c.text("Invalid OTP", { status: 400 });
-    }
-
-    bus.waitForSubscriber(); // Needed for serverless functions
-    bus.publish(data.otp);
-
-    return c.text("OTP received", { status: 200 });
+	bus.publish(locationHash, otp);
+	return c.text("OTP received", 200);
 });
 
-app.get("/otp", async (c) => {
-    return streamSSE(c, async (stream) => {
-        bus.subscribe(async (otp) => {
-            await stream.writeSSE({ data: otp });
-            await stream.close();
-        });
+app.get("/otp", extensionAuth, async (c) => {
+	if (process.env.NODE_ENV === "development") {
+		const randomCode = `${Math.floor(Math.random() * 100000)}`;
+		await Bun.sleep(Math.random() * 5000);
+		return c.text(randomCode, 200);
+	}
 
-        // Timeout
-        await stream.writeln("");
-        await stream.sleep(60_000);
-        await stream.close();
-    })
+	const url = new URL(c.req.url);
+	const locationHash = url.searchParams.get("locationHash") || "unknown";
+
+	try {
+		const otp = await bus.subscribeOnce(locationHash, 60_000);
+		return c.text(otp, 200);
+	} catch {
+		return c.body(null, 204);
+	}
 });
 
 export default app;

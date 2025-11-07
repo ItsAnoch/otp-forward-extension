@@ -1,0 +1,201 @@
+:root {
+	--bg: #0b0c0f;
+	--panel: #111318;
+	--text: #e6e7ea;
+	--muted: #a2a8b3;
+	--accent: #4da3ff;
+	--accent-weak: rgba(77, 163, 255, 0.15);
+	--success: #58d38c;
+	--danger: #ff7676;
+	--ring: 0 0 0 2px var(--accent-weak);
+	--radius: 14px;
+	--shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--bg: #fafafa;
+		--panel: #ffffff;
+		--text: #101218;
+		--muted: #5c6470;
+		--accent: #2563eb;
+		--accent-weak: rgba(37, 99, 235, 0.12);
+		--success: #0ea65c;
+		--danger: #e11d48;
+		--shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	width: 320px;
+	min-height: 160px;
+	background: var(--bg);
+	color: var(--text);
+	font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+}
+
+/* Panel */
+#app,
+body {
+	display: grid;
+	place-items: center;
+	padding: 14px;
+}
+
+.popup-panel {
+	width: 100%;
+	background: var(--panel);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	padding: 16px;
+	border: 1px solid rgba(124, 139, 161, 0.15);
+	animation: fadeIn 240ms ease-out;
+}
+
+/* Header */
+.popup-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.popup-title {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.2px;
+	color: var(--muted);
+}
+
+.status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+	background: var(--success);
+	box-shadow: 0 0 0 4px rgba(88, 211, 140, 0.15);
+}
+
+/* OTP display */
+#otp-text {
+	display: block;
+	margin-top: 6px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+	font-size: 28px;
+	letter-spacing: 0.08em;
+	font-weight: 700;
+	padding: 10px 12px;
+	border-radius: 12px;
+	background: linear-gradient(180deg, rgba(124, 139, 161, 0.08), rgba(124, 139, 161, 0.06));
+	text-align: center;
+	user-select: all;
+}
+
+/* TTL row */
+.ttl-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+.ttl-label {
+	color: var(--muted);
+	font-size: 12px;
+}
+
+#otp-ttl {
+	display: inline-block;
+	min-width: 34px;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	padding: 4px 8px;
+	border-radius: 999px;
+	background: var(--accent-weak);
+	color: var(--accent);
+}
+
+/* Footer actions, optional */
+.actions {
+	margin-top: 12px;
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+}
+
+.button {
+	appearance: none;
+	border: 1px solid rgba(124, 139, 161, 0.25);
+	background: transparent;
+	color: var(--text);
+	padding: 8px 10px;
+	border-radius: 10px;
+	font-size: 13px;
+	cursor: pointer;
+	transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.button:hover {
+	background: rgba(124, 139, 161, 0.08);
+}
+
+.button:active {
+	transform: translateY(1px);
+}
+
+.button.primary {
+	border-color: transparent;
+	background: var(--accent);
+	color: white;
+}
+
+.button.primary:hover {
+	filter: brightness(1.05);
+}
+
+/* Utility states */
+.is-loading #otp-text {
+	opacity: 0.7;
+}
+
+.is-expired #otp-text {
+	color: var(--danger);
+}
+
+.is-expired #otp-ttl {
+	background: rgba(255, 118, 118, 0.12);
+	color: var(--danger);
+}
+
+/* Focus outlines for accessibility */
+:focus-visible {
+	outline: none;
+	box-shadow: var(--ring);
+	border-radius: 10px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+	from { opacity: 0; transform: translateY(4px) }
+	to { opacity: 1; transform: translateY(0) }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation: none
+	}
+}
+
+/* Example structure helpers */
+/* If your HTML does not have these wrappers, you can add them
+   or keep only the ID based rules above. */

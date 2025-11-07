@@ -1,4 +1,4 @@
-# OTP Extension
+# OTP Forward Extension
 
 A Chrome extension that automatically detects and fills OTP (One-Time Password) input fields by polling a server for OTP codes received from your phone.
 
@@ -64,7 +64,7 @@ The extension consists of three main components working together to deliver OTPs
 - Refresh button to clear cache and request a new OTP
 
 ### Authentication Flow
-The service worker includes the `EXTENSION_TOKEN` in the `Authorization` header when polling the server, ensuring only authorized extensions can retrieve OTPs. The server validates this bearer token before allowing access to the OTP endpoint.
+The service worker includes the `PUBLIC_EXTENSION_TOKEN` in the `Authorization` header when polling the server, ensuring only authorized extensions can retrieve OTPs.
 
 ### OTP Lifecycle
 1. Content script detects OTP input field

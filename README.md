@@ -1,4 +1,4 @@
-# Phone OTP
+# OTP Forward Extension
 
 A seamless solution for automatically filling OTP codes from your phone directly into your browser, eliminating the need to manually copy-paste verification codes.
 
@@ -14,7 +14,7 @@ Modern web applications frequently require OTP verification, forcing users to:
 
 ## The Solution
 
-Phone OTP creates a secure bridge between your phone and browser:
+OTP Forward Extension creates a secure bridge between your phone and browser:
 
 1. **Phone receives SMS** with OTP code
 2. **iOS Shortcut extracts** the code and sends it to the server
@@ -68,7 +68,7 @@ The entire process happens in seconds, requiring zero manual intervention.
    - Polls `GET /otp` endpoint every 600ms when waiting
    - Caches OTPs in local storage with 30-second TTL
    - Handles concurrent requests from multiple tabs
-   - Includes `EXTENSION_TOKEN` bearer token for authentication
+   - Includes `PUBLIC_EXTENSION_TOKEN` for authentication
 
 3. **Auto-fill** executes via `document.execCommand('insertText')` to:
    - Trigger native input events
@@ -78,9 +78,8 @@ The entire process happens in seconds, requiring zero manual intervention.
 ### Server Architecture
 
 **Authentication Layer**:
-- Extension requests validated via bearer token authentication
+- Extension requests validated via bearer token + User-Agent check
 - Phone submissions validated via separate bearer token
-- Both use the same token validation middleware for consistency
 - Prevents unauthorized access from both sides
 
 **Location Hashing**:
@@ -134,13 +133,13 @@ The shortcut is configured as a personal automation that triggers on incoming me
 1. **Clone and install**:
 ```bash
 git clone <repository-url>
-cd phone-otp
+cd otp-forward-extension
 bun install
 ```
 
 2. **Configure environment** (`.env` file):
 ```env
-EXTENSION_TOKEN=your-secure-extension-token
+PUBLIC_EXTENSION_TOKEN=your-secure-extension-token
 PHONE_AUTH_TOKEN=your-secure-phone-token
 PUBLIC_SERVER_URL=https://your-server-url.com
 ```
@@ -178,12 +177,12 @@ Once configured:
 
 ## Security Considerations
 
-- **Token-based authentication**: Separate bearer tokens for phone and extension with unified validation
-- **Location validation**: Geographic hash prevents cross-region OTP interception
+- **Token-based authentication**: Separate tokens for phone and extension
+- **Location validation**: Geographic hash prevents cross-region interception
 - **Time-limited OTPs**: 30-second TTL in extension cache
 - **In-memory storage**: No persistent OTP storage on server
 - **HTTPS required**: All communication encrypted in transit
-- **Consistent auth middleware**: Reusable token validation ensures security across all endpoints
+- **User-Agent validation**: Extension requests verified as browser-originated
 
 ## Development
 

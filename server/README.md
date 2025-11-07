@@ -1,4 +1,4 @@
-# OTP Server
+# OTP Forward Extension - Server
 
 A lightweight Hono-based server that acts as a bridge between your phone and browser extension, securely routing OTP codes using a pub-sub message bus.
 
